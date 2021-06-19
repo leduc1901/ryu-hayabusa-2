@@ -28,25 +28,25 @@ body {
 }
 
 .menu-item-1{
-  -webkit-animation: fadeIn1 1.2s ease-out;
+  animation: fadeIn1 1.2s ease-out;
   animation: fadeIn1 1.2s ease-out
 }
 
 .menu-item-2{
   max-height: 0;
   overflow: hidden;
-  -webkit-animation: fadeIn2 1.2s forwards;
+  animation: fadeIn2 1.2s forwards;
   animation: fadeIn2 1.2s forwards
 }
 
 .menu-item-3{
   max-height: 0;
   overflow: hidden;
-  -webkit-animation: fadeIn3 1.2s forwards;
+  animation: fadeIn3 1.2s forwards;
   animation: fadeIn3 1.2s forwards
 }
 
-@-webkit-keyframes fadeIn1 {
+@keyframes fadeIn1 {
   0% {
     display: none;
     color: #ddd;
@@ -66,7 +66,7 @@ body {
   }
 }
 
-@-webkit-keyframes fadeIn2 {
+@keyframes fadeIn2 {
   0% {
     display: none;
     color: #ddd;
@@ -87,7 +87,7 @@ body {
   }
 }
 
-@-webkit-keyframes fadeIn3 {
+@keyframes fadeIn3 {
   0% {
     display: none;
     color: #ddd;
@@ -132,7 +132,7 @@ body {
 .scroll,
 .scroll .scroll-item {
   border-radius: 5px;
-  -webkit-transition: 1s;
+  transition: 1s;
   transition: 1s
 }
 
@@ -148,7 +148,7 @@ body {
   justify-content: center;
   position: absolute;
   bottom: -400px;
-  -webkit-transition: 1.5s;
+  transition: 1.5s;
   transition: 1.5s;
   padding-left: 15px
 }
@@ -180,7 +180,7 @@ body {
 
 .car-image,
 .car-image img {
-  -webkit-transition: 1.5s;
+  transition: 1.5s;
   transition: 1.5s
 }
 
@@ -188,7 +188,7 @@ body {
   width: 590px;
   height: 440px;
   pointer-events: none;
-  -webkit-user-select: none;
+  user-select: none;
   -ms-user-select: none;
   user-select: none
 }
@@ -214,10 +214,10 @@ body {
   left: 350px;
   top: 190px;
   z-index: 10;
-  -webkit-transition: opacity .3s, visibility .3s, -webkit-transform 1.5s;
-  transition: opacity .3s, visibility .3s, -webkit-transform 1.5s;
+  transition: opacity .3s, visibility .3s, transform 1.5s;
+  transition: opacity .3s, visibility .3s, transform 1.5s;
   transition: transform 1.5s, opacity .3s, visibility .3s;
-  transition: transform 1.5s, opacity .3s, visibility .3s, -webkit-transform 1.5s;
+  transition: transform 1.5s, opacity .3s, visibility .3s, transform 1.5s;
   opacity: 0;
   visibility: hidden
 }
@@ -226,7 +226,7 @@ body {
   width: 300px;
   height: 220px;
   pointer-events: none;
-  -webkit-user-select: none;
+  user-select: none;
   -ms-user-select: none;
   user-select: none
 }
@@ -234,14 +234,14 @@ body {
 .camp-image-state1 {
   opacity: 1;
   visibility: visible;
-  -webkit-transform: translateX(-160px);
+  transform: translateX(-160px);
   transform: translateX(-160px)
 }
 
 .camp-image-state2 {
   opacity: 1;
   visibility: visible;
-  -webkit-transform: translate(-190px, -150px) scale(.8);
+  transform: translate(-190px, -150px) scale(.8);
   transform: translate(-190px, -150px) scale(.8)
 }
 .fking-scroll{
@@ -292,7 +292,7 @@ body {
   margin: 0px;
 }
 
-@-webkit-keyframes fadeIn4 {
+@keyframes fadeIn4 {
   0% {
     display: none;
     color: #ddd;
@@ -313,7 +313,7 @@ body {
   }
 }
 
-@-webkit-keyframes fadeIn5 {
+@keyframes fadeIn5 {
   0% {
     display: none;
     color: #ddd;
@@ -399,7 +399,7 @@ body {
   cursor: pointer;
   color: #f8f3de;
   margin-right: 26px;
-  -webkit-animation: fadeInFromNone 1.2s ease-out;
+  animation: fadeInFromNone 1.2s ease-out;
   animation: fadeInFromNone 1.2s ease-out
 }
 
@@ -413,22 +413,8 @@ body {
   max-height: 155px;
   max-width: 300px;
   overflow: hidden;
-  -webkit-animation: drawing 1s ease-out;
+  animation: drawing 1s ease-out;
   animation: drawing 1s ease-out
-}
-
-@-webkit-keyframes drawing {
-  0% {
-    height: 0
-  }
-
-  1% {
-    height: 0
-  }
-
-  to {
-    height: 100px
-  }
 }
 
 @keyframes drawing {
