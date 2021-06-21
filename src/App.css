@@ -15,7 +15,9 @@ body {
   justify-content: space-around;
   position: absolute;
   top: 102px;
-  left: 95px
+  left: 95px;
+  opacity: 1;
+  transition: 1.5s;
 }
 
 .menu-item {
@@ -133,7 +135,6 @@ body {
 .scroll .scroll-item {
   border-radius: 5px;
   transition: 1s;
-  transition: 1s
 }
 
 .scroll .scroll-item {
@@ -147,21 +148,34 @@ body {
   display: flex;
   justify-content: center;
   position: absolute;
-  bottom: -400px;
+  opacity: 0;
+  line-height: 12px;
+  bottom: -140px;
   transition: 1.5s;
   transition: 1.5s;
   padding-left: 15px
 }
+.float-text0{
+  bottom: -600px;
+}
+
+.opacity-for-this{
+  opacity: 0 !important;
+}
+
+.float-text1{
+  opacity: 1;
+}
 
 .float-text p {
   color: #eee;
-  font-size: 10px;
-  width: 355px;
+  font-size: 14px;
+  width: 520px;
   line-height: 2
 }
 
 .float-text2 {
-  bottom: -70px
+  bottom: 180px
 }
 
 .float-text3 {
@@ -192,7 +206,48 @@ body {
   -ms-user-select: none;
   user-select: none
 }
+.drawing-wrapper{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  position: absolute;
+  width: 100%;
+  max-height: 0;
+  bottom: 0px;
+  transition: 1s;
+  height: 152px;
+}
+.image-draw{
+  animation: fadeInDraw 1s forwards;
+  animation-delay: .5s;
+}
+@keyframes fadeInDraw {
+  0% {
+    display: none;
+    color: #ddd;
+  }
 
+  1% {
+    display: block;
+  }
+
+  to {
+    display: block;
+    max-height: 152px;
+  }
+}
+.drawing-draw{
+  width: 410px;
+}
+.drawing-draw img{
+  max-width: 100%;
+}
+.drawing2{
+  margin-right: 70px;
+}
+.drawing2 {
+  width: 420px !important;
+}
 .car-image-state1 {
   transform: translateX(-135px)
 }
@@ -223,19 +278,19 @@ body {
 }
 
 .camp-image img {
-  width: 300px;
-  height: 220px;
+  width: 500px;
+  height: 420px;
   pointer-events: none;
   user-select: none;
   -ms-user-select: none;
   user-select: none
 }
 
-.camp-image-state1 {
+.campTransform {
   opacity: 1;
   visibility: visible;
-  transform: translateX(-160px);
-  transform: translateX(-160px)
+  margin-top: 50px;
+  transform: translateX(-20px);
 }
 
 .camp-image-state2 {
@@ -244,13 +299,11 @@ body {
   transform: translate(-190px, -150px) scale(.8);
   transform: translate(-190px, -150px) scale(.8)
 }
-.fking-scroll{
-  transform:translateY(-0vh);
-  transition:1.5s;
-}
+
 .section-one {
   padding: 50px;
   width: 100%;
+  transition: 1s;
   position: relative;
 }
 .title-section {
@@ -399,8 +452,8 @@ body {
   cursor: pointer;
   color: #f8f3de;
   margin-right: 26px;
-  animation: fadeInFromNone 1.2s ease-out;
-  animation: fadeInFromNone 1.2s ease-out
+  animation: fadeIn1 1.2s ease-out;
+  animation: fadeIn1 1.2s ease-out
 }
 
 .section-one .action .action-btn .btn:last-child {
@@ -417,6 +470,10 @@ body {
   animation: drawing 1s ease-out
 }
 
+.drawing img{
+  max-width: 300px;
+}
+
 @keyframes drawing {
   0% {
     height: 0
@@ -427,6 +484,91 @@ body {
   }
 
   to {
-    height: 100px
+    height: 155px
   }
+}
+
+.section-two {
+  padding: 50px;
+  height: 100vh;
+  z-index: 9
+}
+
+.section-two ::scrollbar {
+  width: 10px
+}
+
+.section-two ::scrollbar-track {
+  background: #f1f1f1
+}
+
+.section-two ::scrollbar-thumb {
+  background: #888
+}
+
+.section-two ::scrollbar-thumb:hover {
+  background: #555
+}
+
+
+.section-two .text {
+  color: #f8f3de;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  margin-top: 250px
+}
+
+.scroll {
+  opacity: 0;
+  height: 130px;
+  width: 6px;
+  position: absolute;
+  bottom: 55px;
+  left: 95px;
+  transition: 1s;
+  background-color: hsla(0, 0%, 93.3%, .2)
+}
+
+
+
+.opacity-for-this-1{
+  opacity: 1;
+}
+
+.scroll,
+.scroll .scroll-item {
+  border-radius: 5px;
+  -webkit-transition: 1s;
+  transition: 1s
+}
+.scroll-2{
+  transform: translateY(50px)
+}
+
+.scroll .scroll-item {
+  width: 100%;
+  height: 50px;
+  background-color: hsla(0, 0%, 100%, .7)
+}
+.title-section-2{
+  margin-top: 62px;
+  letter-spacing: -1.1px;
+}
+
+.carTransform {
+  margin-top: 20px;
+  transform: translateX(-185px)
+}
+
+.carTransform img {
+  width: 560px;
+  height: 410px
+}
+
+.carTransform2 {
+  transform: translate(-150px, -250px) scale(.8)
+}
+.campTransform2 {
+  transform: translate(-90px, -200px) scale(.8)
 }
