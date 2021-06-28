@@ -149,12 +149,14 @@ body {
   justify-content: center;
   position: absolute;
   opacity: 0;
-  line-height: 12px;
   bottom: -140px;
   transition: 1.5s;
   transition: 1.5s;
   padding-left: 15px
 }
+
+
+
 .float-text0{
   bottom: -600px;
 }
@@ -169,13 +171,13 @@ body {
 
 .float-text p {
   color: #eee;
-  font-size: 14px;
+  font-size: 12px;
   width: 520px;
   line-height: 2
 }
 
 .float-text2 {
-  bottom: 180px
+  bottom: 230px
 }
 
 .float-text3 {

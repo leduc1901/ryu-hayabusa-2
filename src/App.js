@@ -3,7 +3,12 @@ import "./App.css";
 import React from "react";
 
 function App() {
+
+  let timer = Date.now();
+
   function checkScrollDirection(event) {
+    if(Date.now() - timer  < 1000) return false;
+    timer = Date.now();
     console.log(123);
     var transform = document.getElementById("scroll").style.transform;
     console.log(document.getElementById("scroll").style.transform);
