@@ -1,15 +1,30 @@
 import logo from "./logo.svg";
 import "./App.css";
 import React from "react";
+import { throttle } from "lodash";
 
 function App() {
+
+  // const text = throttle = (e) => {
+
+  // }
+
+  const test =  throttle( function(event) {
+
+    checkScrollDirection(event)
+ 
+ }, 1500, {trailing:false});
+ 
 
   let timer = Date.now();
 
   function checkScrollDirection(event) {
-    if(Date.now() - timer  < 1000) return false;
-    timer = Date.now();
-    console.log(123);
+    // console.log(Date.now());
+    // console.log(timer);
+
+    // if(Date.now() - timer  < 1000) return false;
+    // timer = Date.now();
+    // console.log(123);
     var transform = document.getElementById("scroll").style.transform;
     console.log(document.getElementById("scroll").style.transform);
     if (checkScrollDirectionIsUp(event)) {
@@ -86,7 +101,7 @@ function App() {
           display: "flex",
           height: "818px",
         }}
-        onWheel={checkScrollDirection}
+        onWheel={test}
       >
         <div className="menu-bar">
           <div
