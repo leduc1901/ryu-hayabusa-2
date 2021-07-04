@@ -28,7 +28,7 @@ function App() {
     camera.position.x = radius - 1200
     camera.position.z = radius - 400
     // camera.position.y = 00
-    camera.lookAt(0, 150, 20);
+    camera.lookAt(0, 60, 20);
 
     if (mixer) {
       const time = Date.now();
@@ -55,10 +55,14 @@ function App() {
     // scene.background = new THREE.Color(0xf0f0f0);
     const light1 = new THREE.DirectionalLight(0xefefff, 1.5);
     light1.position.set(1, 1, 1).normalize();
+    light1.castShadow = true;
+    light1.receiveShadow = true
     scene.add(light1);
 
     const light2 = new THREE.DirectionalLight(0xffefef, 3);
     light2.position.set(-1, -1, -1).normalize();
+    light2.castShadow = true;
+    light2.receiveShadow = true
     scene.add(light2);
     // const dracoLoader = new DRACOLoader();
     const loader = new GLTFLoader();
@@ -68,13 +72,14 @@ function App() {
     loader.load("Horse.glb", function (gltf) {
       mesh = gltf.scene.children[0];
       mesh.scale.set(0.8, 0.8, 0.8);
+      mesh.castShadow = true;
       scene.add(mesh);
 
       mixer = new THREE.AnimationMixer(mesh);
 
       mixer.clipAction(gltf.animations[0]).setDuration(1).play();
     });
-
+    
     renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
