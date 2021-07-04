@@ -1,13 +1,88 @@
 import logo from "./logo.svg";
 import "./App.css";
-import React from "react";
+import React, {useEffect} from "react";
 import { throttle } from "lodash";
+import * as THREE from "three";
+import { GLTFLoader } from "./libs/GLTFLoader.js";
+import { DRACOLoader } from './libs/DRACOLoader.js';
 
 function App() {
 
-  // const text = throttle = (e) => {
+  let container, stats;
+  let camera, scene, renderer;
+  let mesh, mixer;
 
-  // }
+  const radius = 600;
+  let theta = 0;
+  let prevTime = Date.now();
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    render();
+  }
+
+  function render() {
+    theta += 0.1;
+
+    camera.position.x = radius - 1200
+    camera.position.z = radius - 400
+    // camera.position.y = 00
+    camera.lookAt(0, 150, 20);
+
+    if (mixer) {
+      const time = Date.now();
+
+      mixer.update((time - prevTime) * 0.001);
+
+      prevTime = time;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  useEffect(() => {
+    container = document.getElementById("car")
+    camera = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      1,
+      10000
+    );
+    camera.position.y = 300;
+
+    scene = new THREE.Scene();
+    // scene.background = new THREE.Color(0xf0f0f0);
+    const light1 = new THREE.DirectionalLight(0xefefff, 1.5);
+    light1.position.set(1, 1, 1).normalize();
+    scene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0xffefef, 3);
+    light2.position.set(-1, -1, -1).normalize();
+    scene.add(light2);
+    // const dracoLoader = new DRACOLoader();
+    const loader = new GLTFLoader();
+
+    // dracoLoader.setDecoderPath( 'draco/gltf/' );
+    // loader.setDRACOLoader( dracoLoader );
+    loader.load("Horse.glb", function (gltf) {
+      mesh = gltf.scene.children[0];
+      mesh.scale.set(0.8, 0.8, 0.8);
+      scene.add(mesh);
+
+      mixer = new THREE.AnimationMixer(mesh);
+
+      mixer.clipAction(gltf.animations[0]).setDuration(1).play();
+    });
+
+    renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    container.appendChild( renderer.domElement );
+    animate();
+  }, []);
 
   const test =  throttle( function(event) {
 
@@ -19,12 +94,6 @@ function App() {
   let timer = Date.now();
 
   function checkScrollDirection(event) {
-    // console.log(Date.now());
-    // console.log(timer);
-
-    // if(Date.now() - timer  < 1000) return false;
-    // timer = Date.now();
-    // console.log(123);
     var transform = document.getElementById("scroll").style.transform;
     console.log(document.getElementById("scroll").style.transform);
     if (checkScrollDirectionIsUp(event)) {
@@ -145,10 +214,10 @@ function App() {
           </p>
         </div>
         <div className="car-image" id="car">
-          <img
+          {/* <img
             alt=""
             src="https://i.ibb.co/L6n8NyF/23a106bcde9f07bac8d868e8e4eba5c6.png"
-          />
+          /> */}
         </div>
         <div className="camp-image" id="camp">
           <img alt="" src="https://i.ibb.co/tckLGz1/house-PNG50.png" />

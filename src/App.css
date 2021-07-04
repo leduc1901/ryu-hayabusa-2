@@ -149,7 +149,7 @@ body {
   justify-content: center;
   position: absolute;
   opacity: 0;
-  bottom: -140px;
+  bottom: -88px;
   transition: 1.5s;
   transition: 1.5s;
   padding-left: 15px
@@ -166,7 +166,7 @@ body {
 }
 
 .float-text1{
-  opacity: 1;
+  opacity: 0.65;
 }
 
 .float-text p {
@@ -190,7 +190,7 @@ body {
   justify-content: center;
   position: absolute;
   left: 0;
-  top: 260px;
+  bottom: -140px;
   z-index: 10
 }
 
@@ -526,7 +526,7 @@ body {
   height: 130px;
   width: 6px;
   position: absolute;
-  bottom: 55px;
+  bottom: 52px;
   left: 95px;
   transition: 1s;
   background-color: hsla(0, 0%, 93.3%, .2)
@@ -545,7 +545,7 @@ body {
   transition: 1s
 }
 .scroll-2{
-  transform: translateY(50px)
+  transform: translateY(42px)
 }
 
 .scroll .scroll-item {
@@ -569,7 +569,7 @@ body {
 }
 
 .carTransform2 {
-  transform: translate(-150px, -250px) scale(.8)
+  transform: translate(-150px, -200px) scale(.8)
 }
 .campTransform2 {
   transform: translate(-90px, -200px) scale(.8)
