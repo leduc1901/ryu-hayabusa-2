@@ -1,34 +1,53 @@
 import logo from "./logo.svg";
 import "./App.css";
-import React, {useEffect} from "react";
+import React, {useEffect,Suspense, useLayoutEffect, useRef} from "react";
 import { throttle } from "lodash";
 import * as THREE from "three";
 import { GLTFLoader } from "./libs/GLTFLoader.js";
 import { DRACOLoader } from './libs/DRACOLoader.js';
+import { RoomEnvironment } from './libs/RoomEnvironment.js';
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, Environment, Stage, OrbitControls } from '@react-three/drei'
 
 function App() {
-
+  let stateCar = 0;
   let container, stats;
+  let container2, camera2, scene2, renderer2, mixer2;
   let camera, scene, renderer;
   let mesh, mixer;
-
-  const radius = 600;
+  const clock = new THREE.Clock();
+  const radiusX = -600;
+  const radiusY = 0;
   let theta = 0;
   let prevTime = Date.now();
 
-  function animate() {
-    requestAnimationFrame(animate);
+  function animate1() {
+    requestAnimationFrame(animate1);
 
-    render();
+    render1();
   }
 
-  function render() {
+//   function animate2() {
+
+//     requestAnimationFrame( animate2 );
+
+//     const delta = clock.getDelta();
+
+//     mixer2.update( delta );
+
+    
+
+//     renderer2.render( scene2, camera2 );
+
+//   }
+
+  function render1() {
     theta += 0.1;
 
-    camera.position.x = radius - 1200
-    camera.position.z = radius - 400
+    camera.position.x = radiusX - 1200
+    camera.position.z = radiusY
     // camera.position.y = 00
-    camera.lookAt(0, 60, 20);
+    camera.lookAt(0, 190, 20);
 
     if (mixer) {
       const time = Date.now();
@@ -71,7 +90,7 @@ function App() {
     // loader.setDRACOLoader( dracoLoader );
     loader.load("Horse.glb", function (gltf) {
       mesh = gltf.scene.children[0];
-      mesh.scale.set(0.8, 0.8, 0.8);
+      mesh.scale.set(2, 2, 2);
       mesh.castShadow = true;
       scene.add(mesh);
 
@@ -82,11 +101,11 @@ function App() {
     
     renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(700, 400);
 
     renderer.outputEncoding = THREE.sRGBEncoding;
     container.appendChild( renderer.domElement );
-    animate();
+    animate1();
   }, []);
 
   const test =  throttle( function(event) {
@@ -94,9 +113,25 @@ function App() {
     checkScrollDirection(event)
  
  }, 1500, {trailing:false});
- 
+ const ref = useRef()
 
-  let timer = Date.now();
+ function Model(props) {
+  const { scene, nodes, materials } = useGLTF('/lambo.glb')
+  // A layout effect executes after the jsx has "rendered" but before it is committed to screen by the host (threejs)
+  // This is a good place to make adjustments
+  
+  useLayoutEffect(() => {
+    scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
+    Object.assign(nodes.wheel003_020_2_Chrome_0.material, { metalness: 1, roughness: 0.4})
+    console.log(ref.current)
+    // Using the emissive colors is a nice trick to give textures a warm sheen
+    Object.assign(materials.WhiteCar, { roughness: 0, metalness: 0.25, emissive: new THREE.Color('#500000'), envMapIntensity: 0.5 })
+  }, [scene, nodes, materials])
+  // <primitive> just puts an existing thing into the scene graph
+  // For more control over the asset refer to https://github.com/pmndrs/gltfjsx
+  return <primitive object={scene} ref={ref} {...props} />
+}
+//   let timer = Date.now();
 
   function checkScrollDirection(event) {
     var transform = document.getElementById("scroll").style.transform;
@@ -114,6 +149,7 @@ function App() {
         document
           .getElementById("scrollbar")
           .classList.remove("opacity-for-this-1");
+        stateCar = 0
       } else if (transform === "translateY(-200vh)") {
         document.getElementById("scroll-item").classList.remove("scroll-2");
         document.getElementById("camp").classList.remove("campTransform2");
@@ -122,6 +158,7 @@ function App() {
         document.getElementById("drawing-wrapper").classList.remove("image-draw");
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
+        stateCar= 1
       }
     } else {
       if (transform === "translateY(0vh)") {
@@ -135,6 +172,7 @@ function App() {
           .classList.add("opacity-for-this-1");
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
+          stateCar = 1;
       } else if (transform === "translateY(-100vh)") {
         document.getElementById("scroll-item").classList.add("scroll-2");
         document.getElementById("car").classList.add("carTransform2");
@@ -143,6 +181,7 @@ function App() {
         document.getElementById("drawing-wrapper").classList.add("image-draw");
         document.getElementById("scroll").style.transform =
           "translateY(-200vh)";
+          stateCar = 2;
       }
     }
   }
@@ -219,13 +258,23 @@ function App() {
           </p>
         </div>
         <div className="car-image" id="car">
-          {/* <img
-            alt=""
-            src="https://i.ibb.co/L6n8NyF/23a106bcde9f07bac8d868e8e4eba5c6.png"
-          /> */}
         </div>
         <div className="camp-image" id="camp">
-          <img alt="" src="https://i.ibb.co/tckLGz1/house-PNG50.png" />
+        <Canvas style={{width: '500px', height: '500px'}} attach="background" args={["red"]} dpr={[1, 2]} shadows camera={{ fov: 45 }}>
+          {/* <color attach="background" args={['#101010']} />
+          <fog attach="fog" args={['#101010', 10, 50]} /> */}
+          <Suspense fallback={null}>
+            <Environment path="/cube" />
+            <Stage environment={null} intensity={1} contactShadowOpacity={1} shadowBias={-0.0015}>
+              <Model scale={0.01} />
+            </Stage>
+          </Suspense>
+          <mesh rotation-x={-Math.PI / 2} scale={20}>
+            {/* <planeGeometry/> */}
+            <meshStandardMaterial  transparent depthWrite={false} />
+          </mesh>
+          <OrbitControls autoRotate enableZoom={false} enablePan={true} minPolarAngle={Math.PI / 2.8} maxPolarAngle={Math.PI / 2.8} />
+        </Canvas>
         </div>
         <div className="drawing-wrapper" id="drawing-wrapper">
               <div className="drawing2 drawing-draw">
