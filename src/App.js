@@ -50,7 +50,8 @@ function App() {
       }
       if(radiusZ === endNum) {
         stop()
-      } 
+      }
+      console.log(radiusZ)
     }, 10);
     
   }
