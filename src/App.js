@@ -49,10 +49,8 @@ function App() {
         radiusZ-=5
       }
       if(radiusZ === endNum) {
-        console.log("clear")
         stop()
       } 
-      console.log(radiusZ)
     }, 10);
     
   }
