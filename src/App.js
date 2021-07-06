@@ -16,8 +16,20 @@ function App() {
   let camera, scene, renderer;
   let mesh, mixer;
   const clock = new THREE.Clock();
-  const radiusX = -600;
-  const radiusY = 0;
+  let radiusX = -600;
+  let radiusZ = 0;
+  let radiusY = 300;
+  const origin = {
+    x: -600,
+    y: 300,
+    z: 0
+  };
+  
+  const dest = {
+    x: 600,
+    y: 200,
+    z: 600
+  };
   let theta = 0;
   let prevTime = Date.now();
 
@@ -27,25 +39,37 @@ function App() {
     render1();
   }
 
-//   function animate2() {
+  let handle = null;
 
-//     requestAnimationFrame( animate2 );
-
-//     const delta = clock.getDelta();
-
-//     mixer2.update( delta );
-
+  function changeValue(endNum, cameraPosition) {
+    handle = setInterval(() => {
+      if(cameraPosition === "up"){
+        radiusZ+=5
+      }else{
+        radiusZ-=5
+      }
+      if(radiusZ === endNum) {
+        console.log("clear")
+        stop()
+      } 
+      console.log(radiusZ)
+    }, 10);
     
+  }
 
-//     renderer2.render( scene2, camera2 );
+  function stop(){
+    clearInterval(handle)
+  }
 
-//   }
-
+  
+  
   function render1() {
     theta += 0.1;
 
-    camera.position.x = radiusX - 1200
-    camera.position.z = radiusY
+    camera.position.x = radiusX
+    camera.position.z = radiusZ
+    camera.position.y = radiusY;
+    
     // camera.position.y = 00
     camera.lookAt(0, 190, 20);
 
@@ -68,7 +92,7 @@ function App() {
       1,
       10000
     );
-    camera.position.y = 300;
+    
 
     scene = new THREE.Scene();
     // scene.background = new THREE.Color(0xf0f0f0);
@@ -112,7 +136,7 @@ function App() {
 
     checkScrollDirection(event)
  
- }, 1500, {trailing:false});
+ }, 1000, {trailing:false});
  const ref = useRef()
 
  function Model(props) {
@@ -159,6 +183,7 @@ function App() {
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
         stateCar= 1
+        changeValue(0, "down")
       }
     } else {
       if (transform === "translateY(0vh)") {
@@ -182,6 +207,8 @@ function App() {
         document.getElementById("scroll").style.transform =
           "translateY(-200vh)";
           stateCar = 2;
+          changeValue(500, "up")
+
       }
     }
   }
