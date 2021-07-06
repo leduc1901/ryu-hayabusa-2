@@ -51,7 +51,6 @@ function App() {
       if(radiusZ === endNum) {
         stop()
       }
-      console.log(radiusZ)
     }, 10);
     
   }
@@ -135,7 +134,7 @@ function App() {
 
     checkScrollDirection(event)
  
- }, 1000, {trailing:false});
+ }, 1200, {trailing:false});
  const ref = useRef()
 
  function Model(props) {
@@ -182,7 +181,9 @@ function App() {
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
         stateCar= 1
-        changeValue(0, "down")
+        if(radiusZ === 300){
+          changeValue(0, "down")
+        }
       }
     } else {
       if (transform === "translateY(0vh)") {
@@ -206,7 +207,9 @@ function App() {
         document.getElementById("scroll").style.transform =
           "translateY(-200vh)";
           stateCar = 2;
-          changeValue(500, "up")
+          if(radiusZ === 0){
+            changeValue(300, "up")
+          }
 
       }
     }
