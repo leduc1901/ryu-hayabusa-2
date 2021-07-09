@@ -190,7 +190,7 @@ body {
   justify-content: center;
   position: absolute;
   left: 0;
-  bottom: 100px;
+  bottom: -60px;
   z-index: 10;
 }
 
@@ -268,8 +268,8 @@ body {
   display: flex;
   justify-content: center;
   position: absolute;
-  left: 350px;
-  top: 190px;
+  left: 380px;
+  top: 240px;
   z-index: 10;
   transition: opacity .3s, visibility .3s, transform 1.5s;
   transition: opacity .3s, visibility .3s, transform 1.5s;
@@ -560,7 +560,7 @@ body {
 
 .carTransform {
   margin-top: 20px;
-  transform: translate(-150px, -50px)
+  transform: translate(-200px, 20px)
 }
 
 .carTransform img {
@@ -569,8 +569,8 @@ body {
 }
 
 .carTransform2 {
-  transform: translate(-150px, -260px) scale(.8)
+  transform: translate(-160px, -220px) scale(.8)
 }
 .campTransform2 {
-  transform: translate(-90px, -200px) scale(.8)
+  transform: translate(-90px, -260px) scale(.8)
 }
