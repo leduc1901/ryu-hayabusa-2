@@ -9,11 +9,7 @@ import Lambo from "./Lambo.js"
 import House from "./LittlestTokyo"
 
 function App() {
-  let stateCar = 0;
-  let container, stats;
-  let container2, camera2, scene2, renderer2, mixer2;
-  let camera, scene, renderer;
-  let mesh, mixer;
+  const  [carPosition, setCarPosition] = React.useState('1')
   const clock = new THREE.Clock();
   let radiusX = -600;
   let radiusZ = 0;
@@ -32,6 +28,8 @@ function App() {
   let theta = 0;
   let prevTime = Date.now();
 
+
+
 //   function animate1() {
 //     requestAnimationFrame(animate1);
 
@@ -40,23 +38,8 @@ function App() {
 
 //   let handle = null;
 
-//   function changeValue(endNum, cameraPosition) {
-//     handle = setInterval(() => {
-//       if(cameraPosition === "up"){
-//         radiusZ+=5
-//       }else{
-//         radiusZ-=5
-//       }
-//       if(radiusZ === endNum) {
-//         stop()
-//       }
-//     }, 10);
-    
-//   }
 
-//   function stop(){
-//     clearInterval(handle)
-//   }
+
 
   
   
@@ -180,7 +163,7 @@ function App() {
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
         // if(radiusZ === 300){
-        //   changeValue(0, "down")
+          setCarPosition('1')
         // }
       }
     } else {
@@ -206,7 +189,7 @@ function App() {
           // if(radiusZ === 0){
           //   changeValue(300, "up")
           // }
-
+          setCarPosition('3')
       }
     }
   }
@@ -286,9 +269,9 @@ function App() {
         <Canvas style={{width: '960px', height: '960px'}} attach="background" args={["red"]} dpr={[1, 2]} shadows camera={{ fov: 45 }}>
           <Suspense fallback={null}>
             <Environment path="/cube" />
-            <Stage environment={null} intensity={1} contactShadowOpacity={1} shadowBias={-0.0015}>
-              <Lambo />
-            </Stage>
+            {/* <Stage environment={null} intensity={1} contactShadowOpacity={1} shadowBias={-0.0015}> */}
+              <Lambo carPosition={carPosition}/>
+            {/* </Stage> */}
           </Suspense>
           <mesh rotation-x={-Math.PI / 2} scale={20}>
             {/* <planeGeometry/> */}

@@ -5,41 +5,120 @@ license: CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
 source: https://sketchfab.com/3d-models/lamborghini-urus-2650599973b649ddb4460ff6c03e4aa2
 title: Lamborghini Urus
 */
-import { useFrame } from '@react-three/fiber'
 
-import React, { useRef, useLayoutEffect } from 'react'
-import { useGLTF } from '@react-three/drei'
+import React, { useRef, useLayoutEffect, useEffect } from 'react'
 import * as THREE from 'three'
 
 
-export default function Model(props) {
-  const group = useRef()
+import { useGLTF, useAnimations, ContactShadows, Environment } from "@react-three/drei";
+import { useThree, useFrame } from '@react-three/fiber'
+
+const presets = {
+  rembrandt: {
+    main: [1, 2, 1],
+    fill: [-2, -0.5, -2],
+  },
+  portrait: {
+    main: [-1, 2, 0.5],
+    fill: [-1, 0.5, -1.5],
+  },
+  upfront: {
+    main: [0, 2, 1],
+    fill: [-1, 0.5, -1.5],
+  },
+  soft: {
+    main: [-2, 4, 4],
+    fill: [-1, 0.5, -1.5],
+  },
+}
+
+export default function Lambo({carPosition}) {
+  const inner = useRef();
+  const config = presets['rembrandt']
+  const outer = useRef();
   const wheel1 = useRef()
   const wheel2 = useRef()
   const wheel3 = useRef()
   const wheel4 = useRef()
-
+let handle;
+  const camera = useThree((state) => state.camera)
   const { nodes, materials, scene } = useGLTF('/lambo.glb')
+  const [{ radius, width, height }, set] = React.useState({ radius: 0, width: 0, height: 0 })
+
+  function changeValue(endNum, carPosition) {
+    handle = setInterval(() => {
+      if(carPosition === "up"){
+        camera.position.y +=1
+      }else{
+        camera.position.y -=1
+      }
+      console.log(camera.position.y)
+      if(Math.floor(camera.position.y)  === endNum) {
+        stop()
+      }
+    }, 15);
+    
+  }
+
+  function stop(){
+    clearInterval(handle)
+  }
+
+  useEffect(() => {
+    console.log(camera.position.y)
+    console.log(carPosition)
+    if(carPosition === '3' && Math.floor(camera.position.y) === 176){
+      changeValue(250, 'up')
+    }else if(carPosition === '1' && Math.floor(camera.position.y) === 250){
+      changeValue(176, 'down')
+    }
+  }, [carPosition])
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime()
-    wheel1.current.rotation.x = t * 8 * Math.PI;
-    wheel2.current.rotation.x = t * 8 * Math.PI;
-    wheel3.current.rotation.x = t * 8 * Math.PI;
-    wheel4.current.rotation.x = t * 8 * Math.PI;
+    wheel1.current.rotation.x = t * 4 * Math.PI;
+    wheel2.current.rotation.x = t * 4 * Math.PI;
+    wheel3.current.rotation.x = t * 4 * Math.PI;
+    wheel4.current.rotation.x = t * 4 * Math.PI;
   })
 
   useLayoutEffect(() => {
     scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
     Object.assign(nodes.wheel003_020_2_Chrome_0.material, { metalness: 1, roughness: 0.4})
-    console.log(group.current)
-    group.current.rotation.y = 7
+    console.log(inner.current)
+    inner.current.rotation.y = 7
     // Using the emissive colors is a nice trick to give textures a warm sheen
     Object.assign(materials.WhiteCar, { roughness: 0, metalness: 0.25, emissive: new THREE.Color('#500000'), envMapIntensity: 0.5 })
   }, [scene, nodes, materials])
 
+  React.useLayoutEffect(() => {
+    outer.current.position.set(0, 0, 0)
+    outer.current.updateWorldMatrix(true, true)
+    const box3 = new THREE.Box3().setFromObject(inner.current)
+    const center = new THREE.Vector3()
+    const sphere = new THREE.Sphere()
+    const height = box3.max.y - box3.min.y
+    const width = box3.max.x - box3.min.x
+    box3.getCenter(center)
+    box3.getBoundingSphere(sphere)
+    set({ radius: sphere.radius, width, height })
+    outer.current.position.set(-center.x , -center.y + height / 2, -center.z)
+  }, [])
+
+  React.useLayoutEffect(() => {
+   
+      const y = radius / (height > width ? 1.5 : 2.5)
+      camera.position.set(0, radius * 0.5, radius * 2.5)
+      camera.near = 0.1
+      camera.far = Math.max(5000, radius * 4)
+      camera.lookAt(0, y, 0)
+    
+  }, [radius, height, width])
+
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group>
+    <group ref={outer}>
+      <group ref={inner} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
         <group rotation={[Math.PI / 2, 0, 0]}>
           <group rotation={[0, 0, 0]} scale={[1, 1, 1]}>
@@ -433,7 +512,32 @@ export default function Model(props) {
         </group>
       </group>
     </group>
-  )
+      
+    </group>
+    <ContactShadows
+    rotation-x={Math.PI / 2}
+    opacity={1}
+    width={radius * 2}
+    height={radius * 2}
+    blur={2}
+    far={radius / 2}
+  />
+  <ambientLight intensity={0.3} />
+  {/* <Environment preset={"city"} /> */}
+<spotLight
+  penumbra={1}
+  position={[config.main[0] * radius, config.main[1] * radius, config.main[2] * radius]}
+  intensity={2}
+  shadow-bias={-0.0015}
+  castShadow
+
+/>
+<pointLight
+  position={[config.fill[0] * radius, config.fill[1] * radius, config.fill[2] * radius]}
+  intensity={1}
+/>
+</group >
+  );
 }
 
 useGLTF.preload('/lambo.glb')
