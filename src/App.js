@@ -4,139 +4,24 @@ import React, {useEffect,Suspense, useLayoutEffect, useRef} from "react";
 import { throttle } from "lodash";
 import * as THREE from "three";
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, Environment, Stage, OrbitControls } from '@react-three/drei'
+import { useGLTF, Environment, Stage, OrbitControls, useProgress, Html } from '@react-three/drei'
 import Lambo from "./Lambo.js"
 import House from "./LittlestTokyo"
 
+function Loader() {
+  const { active, progress, errors, item, loaded, total } = useProgress()
+  return <Html center>{progress} % loaded</Html>
+}
+
 function App() {
   const  [carPosition, setCarPosition] = React.useState('1')
-  const clock = new THREE.Clock();
-  let radiusX = -600;
-  let radiusZ = 0;
-  let radiusY = 300;
-  const origin = {
-    x: -600,
-    y: 300,
-    z: 0
-  };
-  
-  const dest = {
-    x: 600,
-    y: 200,
-    z: 600
-  };
-  let theta = 0;
-  let prevTime = Date.now();
-
-
-
-//   function animate1() {
-//     requestAnimationFrame(animate1);
-
-//     render1();
-//   }
-
-//   let handle = null;
-
-
-
-
-  
-  
-//   function render1() {
-//     theta += 0.1;
-
-//     camera.position.x = radiusX
-//     camera.position.z = radiusZ
-//     camera.position.y = radiusY;
-    
-//     // camera.position.y = 00
-//     camera.lookAt(0, 190, 20);
-
-//     if (mixer) {
-//       const time = Date.now();
-
-//       mixer.update((time - prevTime) * 0.001);
-
-//       prevTime = time;
-//     }
-
-//     renderer.render(scene, camera);
-//   }
-
-//   // useEffect(() => {
-//   //   container = document.getElementById("car")
-//     camera = new THREE.PerspectiveCamera(
-//       50,
-//       window.innerWidth / window.innerHeight,
-//       1,
-//       10000
-//     );
-    
-
-//     scene = new THREE.Scene();
-//     // scene.background = new THREE.Color(0xf0f0f0);
-//     const light1 = new THREE.DirectionalLight(0xefefff, 1.5);
-//     light1.position.set(1, 1, 1).normalize();
-//     light1.castShadow = true;
-//     light1.receiveShadow = true
-//     scene.add(light1);
-
-//     const light2 = new THREE.DirectionalLight(0xffefef, 3);
-//     light2.position.set(-1, -1, -1).normalize();
-//     light2.castShadow = true;
-//     light2.receiveShadow = true
-//     scene.add(light2);
-//     // const dracoLoader = new DRACOLoader();
-//     const loader = new GLTFLoader();
-
-//     // dracoLoader.setDecoderPath( 'draco/gltf/' );
-//     // loader.setDRACOLoader( dracoLoader );
-//     loader.load("Horse.glb", function (gltf) {
-//       mesh = gltf.scene.children[0];
-//       mesh.scale.set(2, 2, 2);
-//       mesh.castShadow = true;
-//       scene.add(mesh);
-
-//       mixer = new THREE.AnimationMixer(mesh);
-
-//       mixer.clipAction(gltf.animations[0]).setDuration(1).play();
-//     });
-    
-//     renderer = new THREE.WebGLRenderer({ alpha: true });
-//     renderer.setPixelRatio(window.devicePixelRatio);
-//     renderer.setSize(700, 400);
-
-//     renderer.outputEncoding = THREE.sRGBEncoding;
-//     container.appendChild( renderer.domElement );
-//     animate1();
-//   }, []);
+  const  [carStop, setCarStop] = React.useState(false)
 
   const test =  throttle( function(event) {
-
+    console.log("z")
     checkScrollDirection(event)
  
- }, 1200, {trailing:false});
-//  const ref = useRef()
-
-//  function Model(props) {
-//   const { scene, nodes, materials } = useGLTF('/lambo.glb')
-//   // A layout effect executes after the jsx has "rendered" but before it is committed to screen by the host (threejs)
-//   // This is a good place to make adjustments
-//   const ref = useRef()
-
-//   useLayoutEffect(() => {
-//     scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
-//     Object.assign(nodes.wheel003_020_2_Chrome_0.material, { metalness: 1, roughness: 0.4})
-//     console.log(ref.current)
-//     // Using the emissive colors is a nice trick to give textures a warm sheen
-//     Object.assign(materials.WhiteCar, { roughness: 0, metalness: 0.25, emissive: new THREE.Color('#500000'), envMapIntensity: 0.5 })
-//   }, [scene, nodes, materials])
-//   // <primitive> just puts an existing thing into the scene graph
-//   // For more control over the asset refer to https://github.com/pmndrs/gltfjsx
-//   return <primitive object={scene} ref={ref} {...props} />
-// }
-//   let timer = Date.now();
+ }, 1200, {leading: false});
 
   function checkScrollDirection(event) {
     var transform = document.getElementById("scroll").style.transform;
@@ -151,9 +36,11 @@ function App() {
           .classList.remove("opacity-for-this");
         document.getElementById("float-text").classList.remove("float-text1");
         document.getElementById("scroll").style.transform = "translateY(-0vh)";
+        document.getElementById("road").classList.remove("hidden");
         document
           .getElementById("scrollbar")
           .classList.remove("opacity-for-this-1");
+        setCarStop(false)
       } else if (transform === "translateY(-200vh)") {
         document.getElementById("scroll-item").classList.remove("scroll-2");
         document.getElementById("camp").classList.remove("campTransform2");
@@ -173,11 +60,14 @@ function App() {
         document.getElementById("float-text").classList.add("float-text1");
         document.getElementById("menu-bar").classList.add("opacity-for-this");
         document.getElementById("camp").classList.add("campTransform");
+        document.getElementById("road").classList.add("hidden");
+
         document
           .getElementById("scrollbar")
           .classList.add("opacity-for-this-1");
         document.getElementById("scroll").style.transform =
           "translateY(-100vh)";
+          setCarStop(true)
       } else if (transform === "translateY(-100vh)") {
         document.getElementById("scroll-item").classList.add("scroll-2");
         document.getElementById("car").classList.add("carTransform2");
@@ -267,10 +157,11 @@ function App() {
         </div>
         <div className="car-image" id="car">
         <Canvas style={{width: '960px', height: '960px'}} attach="background" args={["red"]} dpr={[1, 2]} shadows camera={{ fov: 45 }}>
-          <Suspense fallback={null}>
+          <Suspense fallback={<Loader />}>
             <Environment path="/cube" />
             {/* <Stage environment={null} intensity={1} contactShadowOpacity={1} shadowBias={-0.0015}> */}
-              <Lambo carPosition={carPosition}/>
+              <Lambo carPosition={carPosition} carStop={carStop}/>
+              
             {/* </Stage> */}
           </Suspense>
           <mesh rotation-x={-Math.PI / 2} scale={20}>
@@ -279,6 +170,9 @@ function App() {
           </mesh>
           <OrbitControls enableZoom={false} enabled={false} minDistance={200} enablePan={true} minPolarAngle={Math.PI / 2.4} maxPolarAngle={Math.PI / 2.4} />
         </Canvas>
+        <div className="road" id="road">
+                <div className="line"></div>
+              </div>
         </div>
         <div className="camp-image" id="camp">
         <Canvas style={{width: '600px', height: '600px'}} attach="background" args={["red"]} dpr={[1, 2]} shadowMap camera={{ fov: 70}}>

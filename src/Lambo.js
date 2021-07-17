@@ -32,7 +32,7 @@ const presets = {
   },
 }
 
-export default function Lambo({carPosition}) {
+export default function Lambo({carPosition, carStop}) {
   const inner = useRef();
   const config = presets['rembrandt']
   const outer = useRef();
@@ -75,11 +75,13 @@ let handle;
   }, [carPosition])
 
   useFrame((state) => {
-    const t = state.clock.getElapsedTime()
-    wheel1.current.rotation.x = t * 4 * Math.PI;
-    wheel2.current.rotation.x = t * 4 * Math.PI;
-    wheel3.current.rotation.x = t * 4 * Math.PI;
-    wheel4.current.rotation.x = t * 4 * Math.PI;
+    if(!carStop){
+      const t = state.clock.getElapsedTime()
+      wheel1.current.rotation.x = t * 4 * Math.PI;
+      wheel2.current.rotation.x = t * 4 * Math.PI;
+      wheel3.current.rotation.x = t * 4 * Math.PI;
+      wheel4.current.rotation.x = t * 4 * Math.PI;
+    }
   })
 
   useLayoutEffect(() => {
