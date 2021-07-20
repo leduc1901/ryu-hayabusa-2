@@ -108,14 +108,14 @@ export default function Lambo({ carPosition, carStop }) {
     if(!carStop){
       road = setInterval(() => {
         if (lineRef && lineRef.current) {
-          lineRef.current.position.z -= 4;
-          lineRef2.current.position.z -= 4;
+          lineRef.current.position.z -= 5;
+          lineRef2.current.position.z -= 5;
           if (Math.floor(lineRef.current.position.z) == -240) {
             lineRef.current.position.z = 200;
             lineRef2.current.position.z = 200;
           }
         }
-      }, 3)
+      }, 2)
     }else{
       clearInterval(road)
     }
