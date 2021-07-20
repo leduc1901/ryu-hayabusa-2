@@ -34,11 +34,12 @@ const presets = {
 
 export default function House(props) {
   const inner = useRef();
+  const train = useRef()
   const config = presets['rembrandt']
   const outer = useRef();
   const camera = useThree((state) => state.camera)
   const { nodes, materials, animations } = useGLTF("/LittlestTokyo.glb");
-  const { actions } = useAnimations(animations, inner);
+  const { actions, clips } = useAnimations(animations, train);
   const [{ radius, width, height }, set] = React.useState({ radius: 0, width: 0, height: 0 })
 
 
@@ -67,7 +68,8 @@ export default function House(props) {
   }, [radius, height, width])
 
   useEffect(() => {
-    console.log(actions);
+    // actions['Take 001'].play()
+    // console.log(animations);
   }, []);
 
   return (
@@ -80,6 +82,7 @@ export default function House(props) {
                 position={[76.07, 163.94, 118.6]}
                 rotation={[-Math.PI / 3, 0, 0]}
                 scale={3.1}
+
               >
                 <group position={[-97.41, -7.13, -96.27]}>
                   <mesh
@@ -505,6 +508,7 @@ export default function House(props) {
               <group
                 position={[26.37, -164.47, 185.11]}
                 rotation={[-Math.PI / 2, 0, 0]}
+                
               >
                 <group position={[-111.42, 210.54, 169.88]}>
                   <mesh
@@ -551,6 +555,7 @@ export default function House(props) {
               <group
                 position={[-85.05, 5.4, -25.43]}
                 rotation={[-Math.PI / 2, 0, 0]}
+
               >
                 <mesh
                   geometry={nodes.Object649_normal_0.geometry}
@@ -634,6 +639,7 @@ export default function House(props) {
               <group
                 position={[-173.39, -142.47, 79.93]}
                 rotation={[-Math.PI / 2, 0, 0]}
+
               >
                 <group
                   position={[80.21, -105.99, -2.99]}

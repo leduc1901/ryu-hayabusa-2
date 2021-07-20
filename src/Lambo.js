@@ -6,12 +6,17 @@ source: https://sketchfab.com/3d-models/lamborghini-urus-2650599973b649ddb4460ff
 title: Lamborghini Urus
 */
 
-import React, { useRef, useLayoutEffect, useEffect } from 'react'
-import * as THREE from 'three'
+import React, { useRef, useLayoutEffect, useEffect } from "react";
+import * as THREE from "three";
+import { DoubleSide } from "three";
 
-
-import { useGLTF, useAnimations, ContactShadows, Environment } from "@react-three/drei";
-import { useThree, useFrame } from '@react-three/fiber'
+import {
+  useGLTF,
+  useAnimations,
+  ContactShadows,
+  Environment,
+} from "@react-three/drei";
+import { useThree, useFrame } from "@react-three/fiber";
 
 const presets = {
   rembrandt: {
@@ -30,516 +35,980 @@ const presets = {
     main: [-2, 4, 4],
     fill: [-1, 0.5, -1.5],
   },
-}
+};
 
-export default function Lambo({carPosition, carStop}) {
+
+// const  road = (lineRef) => {
+//   const road1 = setInterval(() => {
+//     if (lineRef && lineRef.current) {
+//       lineRef.current.position.z -= 2;
+//       if (Math.floor(lineRef.current.position.z) == -240) {
+//         lineRef.current.position.z = 250;
+//       }
+      
+//     }
+//     console.log("david")
+//   }, 6);
+// }
+
+export default function Lambo({ carPosition, carStop }) {
   const inner = useRef();
-  const config = presets['rembrandt']
+  const wrapper = useRef();
+  const config = presets["rembrandt"];
   const outer = useRef();
-  const wheel1 = useRef()
-  const wheel2 = useRef()
-  const wheel3 = useRef()
-  const wheel4 = useRef()
-let handle;
-  const camera = useThree((state) => state.camera)
-  const { nodes, materials, scene } = useGLTF('/lambo.glb')
-  const [{ radius, width, height }, set] = React.useState({ radius: 0, width: 0, height: 0 })
+  const wheel1 = useRef();
+  const wheel2 = useRef();
+  const wheel3 = useRef();
+  const wheel4 = useRef();
+  let handle;
+  let road;
+  const camera = useThree((state) => state.camera);
+  const { nodes, materials, scene } = useGLTF("/lambo.glb");
+  const [{ radius, width, height }, set] = React.useState({
+    radius: 0,
+    width: 0,
+    height: 0,
+  });
 
   function changeValue(endNum, carPosition) {
     handle = setInterval(() => {
-      if(carPosition === "up"){
-        camera.position.y +=1
-      }else{
-        camera.position.y -=1
+      if (carPosition === "up") {
+        camera.position.y += 1;
+      } else {
+        camera.position.y -= 1;
       }
-      console.log(camera.position.y)
-      if(Math.floor(camera.position.y)  === endNum) {
-        stop()
+      console.log(camera.position.y);
+      if (Math.floor(camera.position.y) === endNum) {
+        stop();
       }
+      console.log()
     }, 15);
-    
+  }
+  const lineRef = useRef();
+  const lineRef2 = useRef();
+
+  function stop() {
+    clearInterval(handle);
   }
 
-  function stop(){
-    clearInterval(handle)
+  function stopRoad() {
+    clearInterval(road)
   }
 
   useEffect(() => {
-    console.log(camera.position.y)
-    console.log(carPosition)
-    if(carPosition === '3' && Math.floor(camera.position.y) === 176){
-      changeValue(250, 'up')
-    }else if(carPosition === '1' && Math.floor(camera.position.y) === 250){
-      changeValue(176, 'down')
+    if (carPosition === "3" && Math.floor(camera.position.y) === 176) {
+      changeValue(250, "up");
+    } else if (carPosition === "1" && Math.floor(camera.position.y) === 250) {
+      changeValue(176, "down");
     }
-  }, [carPosition])
+  }, [carPosition]);
+  
+
+  useEffect(() => {
+    if(!carStop){
+      road = setInterval(() => {
+        if (lineRef && lineRef.current) {
+          lineRef.current.position.z -= 4;
+          lineRef2.current.position.z -= 4;
+          if (Math.floor(lineRef.current.position.z) == -240) {
+            lineRef.current.position.z = 200;
+            lineRef2.current.position.z = 200;
+          }
+        }
+      }, 3)
+    }else{
+      clearInterval(road)
+    }
+    return () => {clearInterval(road)}
+  }, [carStop]);
 
   useFrame((state) => {
-    if(!carStop){
-      const t = state.clock.getElapsedTime()
+    if (!carStop) {
+      const t = state.clock.getElapsedTime();
       wheel1.current.rotation.x = t * 4 * Math.PI;
       wheel2.current.rotation.x = t * 4 * Math.PI;
       wheel3.current.rotation.x = t * 4 * Math.PI;
       wheel4.current.rotation.x = t * 4 * Math.PI;
     }
-  })
+  });
+
+
+  const points = [];
+  points.push(new THREE.Vector3(100, 0, -50));
+  points.push(new THREE.Vector3(100, 0, 0));
+
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const planeRef = useRef();
 
   useLayoutEffect(() => {
-    scene.traverse((obj) => obj.type === 'Mesh' && (obj.receiveShadow = obj.castShadow = true))
-    Object.assign(nodes.wheel003_020_2_Chrome_0.material, { metalness: 1, roughness: 0.4})
-    console.log(inner.current)
-    inner.current.rotation.y = 7
+    scene.traverse(
+      (obj) =>
+        obj.type === "Mesh" && (obj.receiveShadow = obj.castShadow = true)
+    );
+    Object.assign(nodes.wheel003_020_2_Chrome_0.material, {
+      metalness: 1,
+      roughness: 0.4,
+    });
+    wrapper.current.rotation.y = 7;
     // Using the emissive colors is a nice trick to give textures a warm sheen
-    Object.assign(materials.WhiteCar, { roughness: 0, metalness: 0.25, emissive: new THREE.Color('#500000'), envMapIntensity: 0.5 })
-  }, [scene, nodes, materials])
+    Object.assign(materials.WhiteCar, {
+      roughness: 0,
+      metalness: 0.25,
+      emissive: new THREE.Color("#500000"),
+      envMapIntensity: 0.5,
+    });
+  }, [scene, nodes, materials]);
 
   React.useLayoutEffect(() => {
-    outer.current.position.set(0, 0, 0)
-    outer.current.updateWorldMatrix(true, true)
-    const box3 = new THREE.Box3().setFromObject(inner.current)
-    const center = new THREE.Vector3()
-    const sphere = new THREE.Sphere()
-    const height = box3.max.y - box3.min.y
-    const width = box3.max.x - box3.min.x
-    box3.getCenter(center)
-    box3.getBoundingSphere(sphere)
-    set({ radius: sphere.radius, width, height })
-    outer.current.position.set(-center.x , -center.y + height / 2, -center.z)
-  }, [])
+    outer.current.position.set(0, 0, 0);
+    outer.current.updateWorldMatrix(true, true);
+    const box3 = new THREE.Box3().setFromObject(inner.current);
+    const center = new THREE.Vector3();
+    const sphere = new THREE.Sphere();
+    const height = box3.max.y - box3.min.y;
+    const width = box3.max.x - box3.min.x;
+    box3.getCenter(center);
+    box3.getBoundingSphere(sphere);
+    set({ radius: sphere.radius, width, height });
+    outer.current.position.set(-center.x, -center.y + height / 2, -center.z);
+  }, []);
+
+  
 
   React.useLayoutEffect(() => {
-   
-      const y = radius / (height > width ? 1.5 : 2.5)
-      camera.position.set(0, radius * 0.5, radius * 2.5)
-      camera.near = 0.1
-      camera.far = Math.max(5000, radius * 4)
-      camera.lookAt(0, y, 0)
-    
-  }, [radius, height, width])
+    const y = radius / (height > width ? 1.5 : 2.5);
+    camera.position.set(0, radius * 0.5, radius * 2.5);
+    camera.near = 0.1;
+    camera.far = Math.max(5000, radius * 4);
+    camera.lookAt(0, y, 0);
+  }, [radius, height, width]);
 
   return (
-    <group>
-    <group ref={outer}>
-      <group ref={inner} dispose={null}>
-      <group rotation={[-Math.PI / 2, 0, 0]}>
-        <group rotation={[Math.PI / 2, 0, 0]}>
-          <group rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-            <group position={[0, 2.7, -119]} rotation={[0, 0, 0]}>
-              <group position={[-88.64, -40.87, -16.14]} ref={wheel1}  rotation={[-Math.PI, 0, Math.PI]} scale={[1.6, 1.51, 1.51]}>
-                <group position={[0, 0, 0]} rotation={[0, 0, 0]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Whl_HD_FL_004_3_Universal_Wheel_0.geometry}
-                    material={nodes.Whl_HD_FL_004_3_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[0.15, 0, 11.18]} rotation={[Math.PI, 0, -Math.PI]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Universal_Caliper_3_Universal_Wheel_0.geometry}
-                    material={nodes.Universal_Caliper_3_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[2.14, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_020_3_Chrome_0.geometry}
-                    material={nodes.wheel003_020_3_Chrome_0.material}
-                  />
-                </group>
-                <group position={[5.39, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_019_3_Chrome_0.geometry}
-                    material={nodes.wheel003_019_3_Chrome_0.material}
-                  />
-                </group>
-                <group position={[2.19, -0.31, -0.37]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_018_3_RimsChrome_0.geometry}
-                    material={nodes.wheel003_018_3_RimsChrome_0.material}
-                  />
-                </group>
-                <group position={[2, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_015_3_BreakDiscs_0.geometry}
-                    material={nodes.wheel003_015_3_BreakDiscs_0.material}
-                  />
-                </group>
-                <mesh geometry={nodes.RR_TiresGum_0.geometry} material={nodes.RR_TiresGum_0.material} />
-              </group>
-              <group position={[88.64, -40.87, -16.14]}  ref={wheel2} rotation={[0, 0, 0]} scale={[1.6, 1.51, 1.51]}>
-                <group position={[0, 0, 0]} rotation={[0, 0, 0]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Whl_HD_FL_004_2_Universal_Wheel_0.geometry}
-                    material={nodes.Whl_HD_FL_004_2_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[-0.15, 0, -11.18]} rotation={[0, 0, 0]} scale={0.65}>
-                  <mesh
-                    geometry={nodes.Universal_Caliper_2_Universal_Wheel_0.geometry}
-                    material={nodes.Universal_Caliper_2_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[2.14, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_020_2_Chrome_0.geometry}
-                    material={nodes.wheel003_020_2_Chrome_0.material}
-                  />
-                </group>
-                <group position={[5.39, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_019_2_Chrome_0.geometry}
-                    material={nodes.wheel003_019_2_Chrome_0.material}
-                  />
-                </group>
-                <group position={[2.19, -0.31, -0.37]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_018_2_RimsChrome_0.geometry}
-                    material={nodes.wheel003_018_2_RimsChrome_0.material}
-                  />
-                </group>
-                <group position={[2, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_015_2_BreakDiscs_0.geometry}
-                    material={nodes.wheel003_015_2_BreakDiscs_0.material}
-                  />
-                </group>
-                <mesh geometry={nodes.RL_TiresGum_0.geometry} material={nodes.RL_TiresGum_0.material} />
-              </group>
-              <group position={[-88.64, -40.87, 274.96]} ref={wheel3} rotation={[-Math.PI, 0, Math.PI]} scale={[1.51, 1.51, 1.51]}>
-                <group position={[0, 0, 0]} rotation={[0, 0, 0]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Whl_HD_FL_004_1_Universal_Wheel_0.geometry}
-                    material={nodes.Whl_HD_FL_004_1_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[-0.15, 0, -11.18]} rotation={[0, 0, 0]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Universal_Caliper_1_Universal_Wheel_0.geometry}
-                    material={nodes.Universal_Caliper_1_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[2.14, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_020_1_Chrome_0.geometry}
-                    material={nodes.wheel003_020_1_Chrome_0.material}
-                  />
-                </group>
-                <group position={[5.39, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_019_1_Chrome_0.geometry}
-                    material={nodes.wheel003_019_1_Chrome_0.material}
-                  />
-                </group>
-                <group position={[2.19, -0.31, -0.36]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_018_1_RimsChrome_0.geometry}
-                    material={nodes.wheel003_018_1_RimsChrome_0.material}
-                  />
-                </group>
-                <group position={[2, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_015_1_BreakDiscs_0.geometry}
-                    material={nodes.wheel003_015_1_BreakDiscs_0.material}
-                  />
-                </group>
-                <mesh geometry={nodes.FR_TiresGum_0.geometry} material={nodes.FR_TiresGum_0.material} />
-              </group>
-              <group position={[88.64, -40.87, 274.96]} ref={wheel4} rotation={[0, 0, 0]} scale={1.51}>
-                <group position={[0, 0, 0]} rotation={[0, 0, 0]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Whl_HD_FL_004_Universal_Wheel_0.geometry}
-                    material={nodes.Whl_HD_FL_004_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[0.15, 0, 11.18]} rotation={[Math.PI, 0, -Math.PI]} scale={[0.65, 0.65, 0.65]}>
-                  <mesh
-                    geometry={nodes.Universal_Caliper_Universal_Wheel_0.geometry}
-                    material={nodes.Universal_Caliper_Universal_Wheel_0.material}
-                  />
-                </group>
-                <group position={[2.14, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_020_Chrome_0.geometry}
-                    material={nodes.wheel003_020_Chrome_0.material}
-                  />
-                </group>
-                <group position={[5.39, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_019_Chrome_0.geometry}
-                    material={nodes.wheel003_019_Chrome_0.material}
-                  />
-                </group>
-                <group position={[2.19, -0.31, -0.37]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_018_RimsChrome_0.geometry}
-                    material={nodes.wheel003_018_RimsChrome_0.material}
-                  />
-                </group>
-                <group position={[2, 0, 0]} rotation={[0, 0, 0]} scale={[1, 1, 1]}>
-                  <mesh
-                    geometry={nodes.wheel003_015_BreakDiscs_0.geometry}
-                    material={nodes.wheel003_015_BreakDiscs_0.material}
-                  />
-                </group>
-                <mesh geometry={nodes.FL_TiresGum_0.geometry} material={nodes.FL_TiresGum_0.material} />
-              </group>
-            </group>
-            <group position={[0, 0, -119]} rotation={[0, 0, 0]}>
-              <group position={[0, -44.01, 65.81]} rotation={[Math.PI, 0, -Math.PI]} scale={[0.55, 0.55, 0.55]}>
-                <group position={[0.18, 97.71, -156.93]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.yellow_WhiteCar_0.geometry} material={materials.WhiteCar} />
-                  <mesh geometry={nodes.yellow_Logo_0.geometry} material={materials.Logo} />
-                </group>
-                <group position={[0, 38.86, 280.29]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.silver_003_BreaksRedPaint_0.geometry} material={materials.BreaksRedPaint} />
-                </group>
-                <group position={[0, 10.16, -116.09]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.silver_002_ChromeBLurred_0.geometry}
-                    material={nodes.silver_002_ChromeBLurred_0.material}
-                  />
-                </group>
-                <group position={[0.35, 130.35, 305.24]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.silver_001_BreakDiscs_0.geometry}
-                    material={nodes.silver_001_BreakDiscs_0.material}
-                  />
-                </group>
-                <group position={[0, 11.97, 292.63]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.silver_ChromeBLurred_0.geometry}
-                    material={nodes.silver_ChromeBLurred_0.material}
-                  />
-                </group>
-                <group position={[0.08, 36.83, 314.59]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.matt_black_001_GreyElements_0.geometry}
-                    material={nodes.matt_black_001_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 129.06, 29.08]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.matt_black_FrameBlack_0.geometry} material={materials.FrameBlack} />
-                </group>
-                <group position={[97.38, 136.81, 284.93]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_050_BlackPaint_0.geometry}
-                    material={nodes.lights_050_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[0, 134.12, 287.4]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_049_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_049_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[0, 125.88, 254.5]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_046_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_046_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[134.45, 125.03, 267.18]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_045_BlackPaint_0.geometry}
-                    material={nodes.lights_045_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[144.59, 127.24, 255.25]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_044_BlackPaint_0.geometry}
-                    material={nodes.lights_044_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[0, 133.37, 271.34]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_043_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_043_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[0, 121.02, 262.47]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_042_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_042_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[0, 93.18, -497.13]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.lights_040_Chrome_0.geometry} material={nodes.lights_040_Chrome_0.material} />
-                </group>
-                <group position={[141.97, 96.69, -474.55]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_033_Default_Material_0.geometry}
-                    material={nodes.lights_033_Default_Material_0.material}
-                  />
-                </group>
-                <group position={[0, 92.78, -496.75]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_027_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_027_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[-97.38, 136.81, 284.93]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_024_BlackPaint_0.geometry}
-                    material={nodes.lights_024_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[0, 126.69, 241.4]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_022_BreakDiscs_0.geometry}
-                    material={nodes.lights_022_BreakDiscs_0.material}
-                  />
-                </group>
-                <group position={[0, 128.6, 274.47]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.lights_021_emitbrake_0.geometry} material={materials.emitbrake} />
-                </group>
-                <group position={[-134.45, 125.03, 267.18]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_019_BlackPaint_0.geometry}
-                    material={nodes.lights_019_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[-144.59, 127.24, 255.25]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_018_BlackPaint_0.geometry}
-                    material={nodes.lights_018_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[0, 95.3, -469.6]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.lights_015_Hub_0.geometry} material={nodes.lights_015_Hub_0.material} />
-                </group>
-                <group position={[0, 90.94, -495.03]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.lights_009_LightsFrontLed_0.geometry} material={materials.LightsFrontLed} />
-                </group>
-                <group position={[0, 86.08, -497.19]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_008_BreakDiscs_1_0.geometry}
-                    material={nodes.lights_008_BreakDiscs_1_0.material}
-                  />
-                </group>
-                <group position={[-141.97, 96.69, -474.55]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_007_Default_Material_0.geometry}
-                    material={nodes.lights_007_Default_Material_0.material}
-                  />
-                </group>
-                <group position={[0, 92.4, -499.12]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.lights_002_BreakDiscs_0.geometry}
-                    material={nodes.lights_002_BreakDiscs_0.material}
-                  />
-                </group>
-                <group position={[0, 150.59, -214.79]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.lights_Hub_0.geometry} material={nodes.lights_Hub_0.material} />
-                </group>
-                <group position={[0.12, 152.9, -194.05]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_008_RimsChrome_0.geometry}
-                    material={nodes.gloss_black_008_RimsChrome_0.material}
-                  />
-                  <mesh geometry={nodes.gloss_black_008_Mirror_0.geometry} material={materials.Mirror} />
-                </group>
-                <group position={[0, 179.62, -67.84]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_007_GreyElements_0.geometry}
-                    material={nodes.gloss_black_007_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 54.49, -543.45]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_006_GreyElements_0.geometry}
-                    material={nodes.gloss_black_006_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 30.25, 277.48]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_005_GreyElements_0.geometry}
-                    material={nodes.gloss_black_005_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, -6.84, -145.25]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_004_GreyElements_0.geometry}
-                    material={nodes.gloss_black_004_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 109.5, -313.38]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_003_GreyElements_0.geometry}
-                    material={nodes.gloss_black_003_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 64.21, -137.57]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_002_GreyElements_0.geometry}
-                    material={nodes.gloss_black_002_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 130.71, 297.04]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_001_BlackPaint_0.geometry}
-                    material={nodes.gloss_black_001_BlackPaint_0.material}
-                  />
-                </group>
-                <group position={[0, 6.46, -516.94]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.gloss_black_GreyElements_0.geometry}
-                    material={nodes.gloss_black_GreyElements_0.material}
-                  />
-                </group>
-                <group position={[0, 38.84, 281.62]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.glass_005_LightsGlassBack_0.geometry} material={materials.LightsGlassBack} />
-                </group>
-                <group position={[1.48, 129.7, 274.37]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.glass_004_LightsGlassFront_0.geometry}
-                    material={nodes.glass_004_LightsGlassFront_0.material}
-                  />
-                </group>
-                <group position={[-0.41, 174.33, -27.92]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh geometry={nodes.glass_003_Glass_0.geometry} material={materials.Glass} />
-                </group>
-                <group position={[0, 150.59, -214.8]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.glass_002_LightsGlassFront_0.geometry}
-                    material={nodes.glass_002_LightsGlassFront_0.material}
-                  />
-                </group>
-                <group position={[-2.21, 92.71, -497.84]} rotation={[-Math.PI / 2, 0, 0]} scale={[2.75, 2.75, 2.75]}>
-                  <mesh
-                    geometry={nodes.glass_001_LightsGlassFront_0.geometry}
-                    material={nodes.glass_001_LightsGlassFront_0.material}
-                  />
+    <group ref={wrapper}>
+      <group ref={outer}>
+        <group ref={inner} dispose={null}>
+          <group rotation={[-Math.PI / 2, 0, 0]}>
+            <group rotation={[Math.PI / 2, 0, 0]}>
+              <group rotation={[0, 0, 0]} scale={[1, 1, 1]}>
+                <group position={[0, 2.7, -119]} rotation={[0, 0, 0]}>
+                  <group
+                    position={[-88.64, -40.87, -16.14]}
+                    ref={wheel1}
+                    rotation={[-Math.PI, 0, Math.PI]}
+                    scale={[1.6, 1.51, 1.51]}
+                  >
+                    <group
+                      position={[0, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Whl_HD_FL_004_3_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Whl_HD_FL_004_3_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[0.15, 0, 11.18]}
+                      rotation={[Math.PI, 0, -Math.PI]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Universal_Caliper_3_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Universal_Caliper_3_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[2.14, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_020_3_Chrome_0.geometry}
+                        material={nodes.wheel003_020_3_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[5.39, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_019_3_Chrome_0.geometry}
+                        material={nodes.wheel003_019_3_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2.19, -0.31, -0.37]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_018_3_RimsChrome_0.geometry}
+                        material={nodes.wheel003_018_3_RimsChrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_015_3_BreakDiscs_0.geometry}
+                        material={nodes.wheel003_015_3_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <mesh
+                      geometry={nodes.RR_TiresGum_0.geometry}
+                      material={nodes.RR_TiresGum_0.material}
+                    />
+                  </group>
+                  <group
+                    position={[88.64, -40.87, -16.14]}
+                    ref={wheel2}
+                    rotation={[0, 0, 0]}
+                    scale={[1.6, 1.51, 1.51]}
+                  >
+                    <group
+                      position={[0, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Whl_HD_FL_004_2_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Whl_HD_FL_004_2_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[-0.15, 0, -11.18]}
+                      rotation={[0, 0, 0]}
+                      scale={0.65}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Universal_Caliper_2_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Universal_Caliper_2_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[2.14, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_020_2_Chrome_0.geometry}
+                        material={nodes.wheel003_020_2_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[5.39, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_019_2_Chrome_0.geometry}
+                        material={nodes.wheel003_019_2_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2.19, -0.31, -0.37]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_018_2_RimsChrome_0.geometry}
+                        material={nodes.wheel003_018_2_RimsChrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_015_2_BreakDiscs_0.geometry}
+                        material={nodes.wheel003_015_2_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <mesh
+                      geometry={nodes.RL_TiresGum_0.geometry}
+                      material={nodes.RL_TiresGum_0.material}
+                    />
+                  </group>
+                  <group
+                    position={[-88.64, -40.87, 274.96]}
+                    ref={wheel3}
+                    rotation={[-Math.PI, 0, Math.PI]}
+                    scale={[1.51, 1.51, 1.51]}
+                  >
+                    <group
+                      position={[0, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Whl_HD_FL_004_1_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Whl_HD_FL_004_1_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[-0.15, 0, -11.18]}
+                      rotation={[0, 0, 0]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Universal_Caliper_1_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Universal_Caliper_1_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[2.14, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_020_1_Chrome_0.geometry}
+                        material={nodes.wheel003_020_1_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[5.39, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_019_1_Chrome_0.geometry}
+                        material={nodes.wheel003_019_1_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2.19, -0.31, -0.36]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_018_1_RimsChrome_0.geometry}
+                        material={nodes.wheel003_018_1_RimsChrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_015_1_BreakDiscs_0.geometry}
+                        material={nodes.wheel003_015_1_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <mesh
+                      geometry={nodes.FR_TiresGum_0.geometry}
+                      material={nodes.FR_TiresGum_0.material}
+                    />
+                  </group>
+                  <group
+                    position={[88.64, -40.87, 274.96]}
+                    ref={wheel4}
+                    rotation={[0, 0, 0]}
+                    scale={1.51}
+                  >
+                    <group
+                      position={[0, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Whl_HD_FL_004_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Whl_HD_FL_004_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[0.15, 0, 11.18]}
+                      rotation={[Math.PI, 0, -Math.PI]}
+                      scale={[0.65, 0.65, 0.65]}
+                    >
+                      <mesh
+                        geometry={
+                          nodes.Universal_Caliper_Universal_Wheel_0.geometry
+                        }
+                        material={
+                          nodes.Universal_Caliper_Universal_Wheel_0.material
+                        }
+                      />
+                    </group>
+                    <group
+                      position={[2.14, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_020_Chrome_0.geometry}
+                        material={nodes.wheel003_020_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[5.39, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_019_Chrome_0.geometry}
+                        material={nodes.wheel003_019_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2.19, -0.31, -0.37]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_018_RimsChrome_0.geometry}
+                        material={nodes.wheel003_018_RimsChrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[2, 0, 0]}
+                      rotation={[0, 0, 0]}
+                      scale={[1, 1, 1]}
+                    >
+                      <mesh
+                        geometry={nodes.wheel003_015_BreakDiscs_0.geometry}
+                        material={nodes.wheel003_015_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <mesh
+                      geometry={nodes.FL_TiresGum_0.geometry}
+                      material={nodes.FL_TiresGum_0.material}
+                    />
+                  </group>
+                </group>
+                <group position={[0, 0, -119]} rotation={[0, 0, 0]}>
+                  <group
+                    position={[0, -44.01, 65.81]}
+                    rotation={[Math.PI, 0, -Math.PI]}
+                    scale={[0.55, 0.55, 0.55]}
+                  >
+                    <group
+                      position={[0.18, 97.71, -156.93]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.yellow_WhiteCar_0.geometry}
+                        material={materials.WhiteCar}
+                      />
+                      <mesh
+                        geometry={nodes.yellow_Logo_0.geometry}
+                        material={materials.Logo}
+                      />
+                    </group>
+                    <group
+                      position={[0, 38.86, 280.29]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.silver_003_BreaksRedPaint_0.geometry}
+                        material={materials.BreaksRedPaint}
+                      />
+                    </group>
+                    <group
+                      position={[0, 10.16, -116.09]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.silver_002_ChromeBLurred_0.geometry}
+                        material={nodes.silver_002_ChromeBLurred_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0.35, 130.35, 305.24]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.silver_001_BreakDiscs_0.geometry}
+                        material={nodes.silver_001_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 11.97, 292.63]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.silver_ChromeBLurred_0.geometry}
+                        material={nodes.silver_ChromeBLurred_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0.08, 36.83, 314.59]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.matt_black_001_GreyElements_0.geometry}
+                        material={nodes.matt_black_001_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 129.06, 29.08]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.matt_black_FrameBlack_0.geometry}
+                        material={materials.FrameBlack}
+                      />
+                    </group>
+                    <group
+                      position={[97.38, 136.81, 284.93]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_050_BlackPaint_0.geometry}
+                        material={nodes.lights_050_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 134.12, 287.4]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_049_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_049_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 125.88, 254.5]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_046_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_046_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[134.45, 125.03, 267.18]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_045_BlackPaint_0.geometry}
+                        material={nodes.lights_045_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[144.59, 127.24, 255.25]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_044_BlackPaint_0.geometry}
+                        material={nodes.lights_044_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 133.37, 271.34]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_043_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_043_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 121.02, 262.47]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_042_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_042_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 93.18, -497.13]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_040_Chrome_0.geometry}
+                        material={nodes.lights_040_Chrome_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[141.97, 96.69, -474.55]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_033_Default_Material_0.geometry}
+                        material={nodes.lights_033_Default_Material_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 92.78, -496.75]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_027_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_027_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[-97.38, 136.81, 284.93]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_024_BlackPaint_0.geometry}
+                        material={nodes.lights_024_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 126.69, 241.4]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_022_BreakDiscs_0.geometry}
+                        material={nodes.lights_022_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 128.6, 274.47]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_021_emitbrake_0.geometry}
+                        material={materials.emitbrake}
+                      />
+                    </group>
+                    <group
+                      position={[-134.45, 125.03, 267.18]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_019_BlackPaint_0.geometry}
+                        material={nodes.lights_019_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[-144.59, 127.24, 255.25]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_018_BlackPaint_0.geometry}
+                        material={nodes.lights_018_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 95.3, -469.6]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_015_Hub_0.geometry}
+                        material={nodes.lights_015_Hub_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 90.94, -495.03]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_009_LightsFrontLed_0.geometry}
+                        material={materials.LightsFrontLed}
+                      />
+                    </group>
+                    <group
+                      position={[0, 86.08, -497.19]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_008_BreakDiscs_1_0.geometry}
+                        material={nodes.lights_008_BreakDiscs_1_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[-141.97, 96.69, -474.55]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_007_Default_Material_0.geometry}
+                        material={nodes.lights_007_Default_Material_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 92.4, -499.12]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_002_BreakDiscs_0.geometry}
+                        material={nodes.lights_002_BreakDiscs_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 150.59, -214.79]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.lights_Hub_0.geometry}
+                        material={nodes.lights_Hub_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0.12, 152.9, -194.05]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_008_RimsChrome_0.geometry}
+                        material={nodes.gloss_black_008_RimsChrome_0.material}
+                      />
+                      <mesh
+                        geometry={nodes.gloss_black_008_Mirror_0.geometry}
+                        material={materials.Mirror}
+                      />
+                    </group>
+                    <group
+                      position={[0, 179.62, -67.84]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_007_GreyElements_0.geometry}
+                        material={nodes.gloss_black_007_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 54.49, -543.45]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_006_GreyElements_0.geometry}
+                        material={nodes.gloss_black_006_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 30.25, 277.48]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_005_GreyElements_0.geometry}
+                        material={nodes.gloss_black_005_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, -6.84, -145.25]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_004_GreyElements_0.geometry}
+                        material={nodes.gloss_black_004_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 109.5, -313.38]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_003_GreyElements_0.geometry}
+                        material={nodes.gloss_black_003_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 64.21, -137.57]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_002_GreyElements_0.geometry}
+                        material={nodes.gloss_black_002_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 130.71, 297.04]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_001_BlackPaint_0.geometry}
+                        material={nodes.gloss_black_001_BlackPaint_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 6.46, -516.94]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.gloss_black_GreyElements_0.geometry}
+                        material={nodes.gloss_black_GreyElements_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[0, 38.84, 281.62]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.glass_005_LightsGlassBack_0.geometry}
+                        material={materials.LightsGlassBack}
+                      />
+                    </group>
+                    <group
+                      position={[1.48, 129.7, 274.37]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.glass_004_LightsGlassFront_0.geometry}
+                        material={nodes.glass_004_LightsGlassFront_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[-0.41, 174.33, -27.92]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.glass_003_Glass_0.geometry}
+                        material={materials.Glass}
+                      />
+                    </group>
+                    <group
+                      position={[0, 150.59, -214.8]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.glass_002_LightsGlassFront_0.geometry}
+                        material={nodes.glass_002_LightsGlassFront_0.material}
+                      />
+                    </group>
+                    <group
+                      position={[-2.21, 92.71, -497.84]}
+                      rotation={[-Math.PI / 2, 0, 0]}
+                      scale={[2.75, 2.75, 2.75]}
+                    >
+                      <mesh
+                        geometry={nodes.glass_001_LightsGlassFront_0.geometry}
+                        material={nodes.glass_001_LightsGlassFront_0.material}
+                      />
+                    </group>
+                  </group>
                 </group>
               </group>
             </group>
           </group>
         </group>
       </group>
-    </group>
+      <ContactShadows
+        rotation-x={Math.PI / 2}
+        rotation-z={0.7}
+        opacity={1}
+        width={radius * 2}
+        height={radius * 2}
+        blur={2}
+        far={radius / 2}
+      />
+      <ambientLight intensity={0.3} />
+      <spotLight
+        penumbra={1}
+        position={[
+          config.main[0] * radius,
+          config.main[1] * radius,
+          config.main[2] * radius,
+        ]}
+        intensity={2}
+        shadow-bias={-0.0015}
+        castShadow
+      />
+      <pointLight
+        position={[
+          config.fill[0] * radius,
+          config.fill[1] * radius,
+          config.fill[2] * radius,
+        ]}
+        intensity={1}
+      />
+      {!carStop && (
+        <>
+        <mesh
+        ref={lineRef}
+        receiveShadow={false}
+        rotation-x={-Math.PI / 2}
+        position-y={5}
+        position-x={-80}
+        position-z={200}
+        scale={[20, 180, 0.2]}
+      >
+        <planeGeometry ref={planeRef} />
+        <meshStandardMaterial color="white" transparent depthWrite={false} />
+      </mesh>
+      <mesh
+      ref={lineRef2}
+      receiveShadow={false}
+      rotation-x={-Math.PI / 2}
+      position-y={5}
+      position-x={20}
+      position-z={200}
+      scale={[20, 180, 0.2]}
+    >
+      <planeGeometry ref={planeRef} />
+      <meshStandardMaterial color="white" transparent depthWrite={false} />
+    </mesh>
+    </>
+      )}
       
     </group>
-    <ContactShadows
-    rotation-x={Math.PI / 2}
-    opacity={1}
-    width={radius * 2}
-    height={radius * 2}
-    blur={2}
-    far={radius / 2}
-  />
-  <ambientLight intensity={0.3} />
-  {/* <Environment preset={"city"} /> */}
-<spotLight
-  penumbra={1}
-  position={[config.main[0] * radius, config.main[1] * radius, config.main[2] * radius]}
-  intensity={2}
-  shadow-bias={-0.0015}
-  castShadow
-
-/>
-<pointLight
-  position={[config.fill[0] * radius, config.fill[1] * radius, config.fill[2] * radius]}
-  intensity={1}
-/>
-</group >
   );
 }
 
-useGLTF.preload('/lambo.glb')
+useGLTF.preload("/lambo.glb");

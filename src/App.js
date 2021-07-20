@@ -4,7 +4,7 @@ import React, {useEffect,Suspense, useLayoutEffect, useRef} from "react";
 import { throttle } from "lodash";
 import * as THREE from "three";
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, Environment, Stage, OrbitControls, useProgress, Html } from '@react-three/drei'
+import { useGLTF, Environment, Stage, OrbitControls, useProgress, Html, Plane } from '@react-three/drei'
 import Lambo from "./Lambo.js"
 import House from "./LittlestTokyo"
 
@@ -16,75 +16,90 @@ function Loader() {
 function App() {
   const  [carPosition, setCarPosition] = React.useState('1')
   const  [carStop, setCarStop] = React.useState(false)
+  const lineRef = useRef()
+  const planeRef = useRef()
+  const [allowToWheel, setAllowToWheel] = React.useState(true)
 
-  const test =  throttle( function(event) {
-    console.log("z")
-    checkScrollDirection(event)
- 
- }, 1200, {leading: false});
+  useLayoutEffect(() => {
+    console.log(planeRef)
+    // console.log(planeRef.current.getSize())
+  }, [planeRef])
+
+  
+
+
 
   function checkScrollDirection(event) {
     var transform = document.getElementById("scroll").style.transform;
     console.log(document.getElementById("scroll").style.transform);
-    if (checkScrollDirectionIsUp(event)) {
-      if (transform === "translateY(-100vh)") {
-        document.getElementById("car").classList.remove("carTransform");
-        document.getElementById("camp").classList.remove("campTransform");
-        document.getElementById("float-text").classList.add("float-text0");
-        document
-          .getElementById("menu-bar")
-          .classList.remove("opacity-for-this");
-        document.getElementById("float-text").classList.remove("float-text1");
-        document.getElementById("scroll").style.transform = "translateY(-0vh)";
-        document.getElementById("road").classList.remove("hidden");
-        document
-          .getElementById("scrollbar")
-          .classList.remove("opacity-for-this-1");
-        setCarStop(false)
-      } else if (transform === "translateY(-200vh)") {
-        document.getElementById("scroll-item").classList.remove("scroll-2");
-        document.getElementById("camp").classList.remove("campTransform2");
-        document.getElementById("car").classList.remove("carTransform2");
-        document.getElementById("float-text").classList.remove("float-text2");
-        document.getElementById("drawing-wrapper").classList.remove("image-draw");
-        document.getElementById("scroll").style.transform =
-          "translateY(-100vh)";
-        // if(radiusZ === 300){
-          setCarPosition('1')
-        // }
-      }
-    } else {
-      if (transform === "translateY(0vh)") {
-        document.getElementById("car").classList.add("carTransform");
-        document.getElementById("float-text").classList.remove("float-text0");
-        document.getElementById("float-text").classList.add("float-text1");
-        document.getElementById("menu-bar").classList.add("opacity-for-this");
-        document.getElementById("camp").classList.add("campTransform");
-        document.getElementById("road").classList.add("hidden");
-
-        document
-          .getElementById("scrollbar")
-          .classList.add("opacity-for-this-1");
-        document.getElementById("scroll").style.transform =
-          "translateY(-100vh)";
-          setCarStop(true)
-      } else if (transform === "translateY(-100vh)") {
-        document.getElementById("scroll-item").classList.add("scroll-2");
-        document.getElementById("car").classList.add("carTransform2");
-        document.getElementById("float-text").classList.add("float-text2");
-        document.getElementById("camp").classList.add("campTransform2");
-        document.getElementById("drawing-wrapper").classList.add("image-draw");
-        document.getElementById("scroll").style.transform =
-          "translateY(-200vh)";
-          // if(radiusZ === 0){
-          //   changeValue(300, "up")
-          // }
-          setCarPosition('3')
-      }
+    if (allowToWheel) {
+        console.log("x")
+        setAllowToWheel(false)
+        setTimeout(() => {
+          setAllowToWheel(true)
+        }, 1500)
+        if (checkScrollDirectionIsUp(event)) {
+          if (transform === "translateY(-100vh)") {
+            document.getElementById("car").classList.remove("carTransform");
+            document.getElementById("camp").classList.remove("campTransform");
+            document.getElementById("float-text").classList.add("float-text0");
+            document
+              .getElementById("menu-bar")
+              .classList.remove("opacity-for-this");
+            document.getElementById("float-text").classList.remove("float-text1");
+            document.getElementById("scroll").style.transform = "translateY(-0vh)";
+            // document.getElementById("road").classList.remove("hidden");
+            document
+              .getElementById("scrollbar")
+              .classList.remove("opacity-for-this-1");
+            setCarStop(false)
+          } else if (transform === "translateY(-200vh)") {
+            document.getElementById("scroll-item").classList.remove("scroll-2");
+            document.getElementById("camp").classList.remove("campTransform2");
+            document.getElementById("car").classList.remove("carTransform2");
+            document.getElementById("float-text").classList.remove("float-text2");
+            document.getElementById("drawing-wrapper").classList.remove("image-draw");
+            document.getElementById("scroll").style.transform =
+              "translateY(-100vh)";
+            // if(radiusZ === 300){
+              setCarPosition('1')
+            // }
+          }
+        } else {
+          if (transform === "translateY(0vh)") {
+            document.getElementById("car").classList.add("carTransform");
+            document.getElementById("float-text").classList.remove("float-text0");
+            document.getElementById("float-text").classList.add("float-text1");
+            document.getElementById("menu-bar").classList.add("opacity-for-this");
+            document.getElementById("camp").classList.add("campTransform");
+            // document.getElementById("road").classList.add("hidden");
+    
+            document
+              .getElementById("scrollbar")
+              .classList.add("opacity-for-this-1");
+            document.getElementById("scroll").style.transform =
+              "translateY(-100vh)";
+              setCarStop(true)
+          } else if (transform === "translateY(-100vh)") {
+            document.getElementById("scroll-item").classList.add("scroll-2");
+            document.getElementById("car").classList.add("carTransform2");
+            document.getElementById("float-text").classList.add("float-text2");
+            document.getElementById("camp").classList.add("campTransform2");
+            document.getElementById("drawing-wrapper").classList.add("image-draw");
+            document.getElementById("scroll").style.transform =
+              "translateY(-200vh)";
+              // if(radiusZ === 0){
+              //   changeValue(300, "up")
+              // }
+              setCarPosition('3')
+          }
+        }
     }
+    
   }
 
   function checkScrollDirectionIsUp(event) {
+    
     if (event.wheel > 0) {
       return event.wheel > 0;
     }
@@ -112,7 +127,7 @@ function App() {
           display: "flex",
           height: "818px",
         }}
-        onWheel={test}
+        onWheel={checkScrollDirection}
       >
         <div className="menu-bar">
           <div
@@ -156,23 +171,18 @@ function App() {
           </p>
         </div>
         <div className="car-image" id="car">
-        <Canvas style={{width: '960px', height: '960px'}} attach="background" args={["red"]} dpr={[1, 2]} shadows camera={{ fov: 45 }}>
+        <Canvas style={{width: '960px', height: '960px'}}  dpr={[1, 2]} shadows camera={{ fov: 45 }}>
           <Suspense fallback={<Loader />}>
             <Environment path="/cube" />
-            {/* <Stage environment={null} intensity={1} contactShadowOpacity={1} shadowBias={-0.0015}> */}
               <Lambo carPosition={carPosition} carStop={carStop}/>
-              
-            {/* </Stage> */}
-          </Suspense>
-          <mesh rotation-x={-Math.PI / 2} scale={20}>
-            {/* <planeGeometry/> */}
-            <meshStandardMaterial  transparent/>
-          </mesh>
-          <OrbitControls enableZoom={false} enabled={false} minDistance={200} enablePan={true} minPolarAngle={Math.PI / 2.4} maxPolarAngle={Math.PI / 2.4} />
+            </Suspense>
+          
+          
+          <OrbitControls enableZoom={false} enabled={false} minDistance={200} enablePan={true} />
         </Canvas>
-        <div className="road" id="road">
+        {/* <div className="road" id="road">
                 <div className="line"></div>
-              </div>
+              </div> */}
         </div>
         <div className="camp-image" id="camp">
         <Canvas style={{width: '600px', height: '600px'}} attach="background" args={["red"]} dpr={[1, 2]} shadowMap camera={{ fov: 70}}>
