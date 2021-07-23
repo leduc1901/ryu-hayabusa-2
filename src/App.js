@@ -178,7 +178,7 @@ function App() {
             </Suspense>
           
           
-          <OrbitControls enableZoom={false} enabled={false} minDistance={200} enablePan={true} />
+          <OrbitControls enableZoom={false} enabled={true} minDistance={200} enablePan={true} />
         </Canvas>
         {/* <div className="road" id="road">
                 <div className="line"></div>
