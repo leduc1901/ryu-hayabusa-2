@@ -96,10 +96,11 @@ export default function Lambo({ carPosition, carStop }) {
   }
 
   useEffect(() => {
-    if (carPosition === "3" && Math.floor(camera.position.y) === 176) {
+    console.log(camera.position.y)
+    if (carPosition === "3" && Math.floor(camera.position.y) === 166) {
       changeValue(250, "up");
     } else if (carPosition === "1" && Math.floor(camera.position.y) === 250) {
-      changeValue(176, "down");
+      changeValue(166, "down");
     }
   }, [carPosition]);
   
@@ -159,6 +160,8 @@ export default function Lambo({ carPosition, carStop }) {
     });
   }, [scene, nodes, materials]);
 
+
+
   React.useLayoutEffect(() => {
     outer.current.position.set(0, 0, 0);
     outer.current.updateWorldMatrix(true, true);
@@ -169,7 +172,7 @@ export default function Lambo({ carPosition, carStop }) {
     const width = box3.max.x - box3.min.x;
     box3.getCenter(center);
     box3.getBoundingSphere(sphere);
-    set({ radius: sphere.radius, width, height });
+    set({ radius: sphere.radius - 20, width, height });
     outer.current.position.set(-center.x, -center.y + height / 2, -center.z);
   }, []);
 

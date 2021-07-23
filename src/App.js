@@ -171,14 +171,14 @@ function App() {
           </p>
         </div>
         <div className="car-image" id="car">
-        <Canvas style={{width: '960px', height: '960px'}}  dpr={[1, 2]} shadows camera={{ fov: 45 }}>
+        <Canvas style={{width: '960px', height: '960px'}} attach="background" dpr={[1, 2]} shadowMap camera={{ fov: 45 }}>
           <Suspense fallback={<Loader />}>
             <Environment path="/cube" />
               <Lambo carPosition={carPosition} carStop={carStop}/>
             </Suspense>
           
           
-          <OrbitControls enableZoom={false} enabled={true} minDistance={200} enablePan={true} />
+          <OrbitControls enableZoom={false} enabled={false} minDistance={200} enablePan={true} />
         </Canvas>
         {/* <div className="road" id="road">
                 <div className="line"></div>
